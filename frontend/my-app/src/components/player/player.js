@@ -1,6 +1,6 @@
 // our music player
 
-
+import { useRef } from 'react';
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import useSound from "use-sound"; // for handling the sound
@@ -86,12 +86,10 @@ const TinyText = styled(Typography)({
 });
 
 
-const Player = () => {
+const Player = ({ audioPlayer }) => {
 
     const [isPlaying, setIsPlaying] = useState(false);
-
     const [play, { pause, duration, sound }] = useSound(rain);
-
     const [currTime, setCurrTime] = useState({
         min: "",
         sec: "",
@@ -100,7 +98,7 @@ const Player = () => {
         min: "",
         sec: ""
     });
-
+    const audioRef = useRef(null);
 
     const [position, setPosition] = React.useState(32);
 
@@ -114,10 +112,16 @@ const Player = () => {
 
     const [seconds, setSeconds] = useState(); // current position of the audio in seconds
     const mainIconColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
-    const lightIconColor =
-        theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+    const lightIconColor = theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
 
-
+    const [volume, setVolume] = useState(audioPlayer ? audioPlayer.volume : 1);
+    console.log(volume);
+    const handleVolumeChange = (event, newValue) => {
+        setVolume(newValue);
+        if (audioPlayer) {
+            audioPlayer.volume = newValue; // Assuming audioPlayer.volume accepts values between 0 and 1
+        }
+    };
     const playingButton = () => {
         if (isPlaying) {
             pause(); // this will pause the audio
@@ -204,8 +208,8 @@ const Player = () => {
                             },
                             '&:hover, &.Mui-focusVisible': {
                                 boxShadow: `0px 0px 0px 8px ${theme.palette.mode === 'dark'
-                                        ? 'rgb(255 255 255 / 16%)'
-                                        : 'rgb(0 0 0 / 16%)'
+                                    ? 'rgb(255 255 255 / 16%)'
+                                    : 'rgb(0 0 0 / 16%)'
                                     }`,
                             },
                             '&.Mui-active': {
@@ -270,9 +274,18 @@ const Player = () => {
                 </Box>
                 <Stack spacing={2} direction="row" sx={{ mb: 1, px: 1 }} alignItems="center">
                     <VolumeDownRounded htmlColor={lightIconColor} />
+                    {/* <audio ref={audioRef} controls>
+                        <source src="/static/images/sliders/chilling-sunday.jpg" type="audio/mpeg" />
+
+                    </audio> */}
                     <Slider
                         aria-label="Volume"
                         defaultValue={30}
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        // value={volume}
+                        // onChange={handleVolumeChange}
                         sx={{
                             color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
                             '& .MuiSlider-track': {
