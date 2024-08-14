@@ -19,10 +19,15 @@ from app.seed.userSeed import seed_users
 app.cli.add_command(seed_songs)
 app.cli.add_command(seed_users)
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
+# Import and register blueprints (routes)
+from app.routes.seedRoutes import song_bp  # Import routes from the correct file
+app.register_blueprint(song_bp, url_prefix='/songs')
+# @app.route("/")
+# def hello_world():
+#     return "<p>Hello, World!</p>"
 
-@app.route("/user")
-def user():
-    return models.User.query.first().username
+def create_app():
+    return app
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True)
