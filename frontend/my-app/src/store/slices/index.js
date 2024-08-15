@@ -1,9 +1,11 @@
 // src/store/slices/index.js
 import { combineReducers } from '@reduxjs/toolkit';
-import counterReducer from './counterSlices';
+
+import songReducer from '../songReducer';
 
 const rootReducer = combineReducers({
-  counter: counterReducer,
+
+  songReducer: songReducer,
   // Add more reducers here if you have other slices
 });
 
