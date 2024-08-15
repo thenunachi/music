@@ -21,7 +21,7 @@ app.cli.add_command(seed_users)
 
 # Import and register blueprints (routes)
 from app.routes.seedRoutes import song_bp  # Import routes from the correct file
-app.register_blueprint(song_bp, url_prefix='/songs')
+app.register_blueprint(song_bp, url_prefix='/api/songs')
 # @app.route("/")
 # def hello_world():
 #     return "<p>Hello, World!</p>"

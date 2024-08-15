@@ -4,10 +4,11 @@ from app.models import Song
 
 song_bp = Blueprint('songs', __name__)
 
-@song_bp.route('/', methods=['GET'])
+@song_bp.route('/all', methods=['GET'])
 def get_all_songs():
     """Get all songs."""
     songs = Song.query.all()
+    
     output = []
     for song in songs:
         song_data = {
@@ -18,6 +19,7 @@ def get_all_songs():
             # 'release_year': song.release_year
         }
         output.append(song_data)
+        print(output,"output")
     return jsonify({'songs': output})
 
 @song_bp.route('/', methods=['POST'])
