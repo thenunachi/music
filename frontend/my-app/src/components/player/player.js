@@ -2,25 +2,15 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useRef } from 'react';
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import useSound from "use-sound"; // for handling the sound
-// import rain from '../assets/rain.mp3';
+
 import './player.css';
 import axios from 'axios';
 
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Slider from '@mui/material/Slider';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import PauseRounded from '@mui/icons-material/PauseRounded';
-import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
-import FastForwardRounded from '@mui/icons-material/FastForwardRounded';
-import FastRewindRounded from '@mui/icons-material/FastRewindRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import VolumeDownRounded from '@mui/icons-material/VolumeDownRounded';
-import { getAllSongsThunk,getASongByIdThunk} from '../../store/songReducer';
+
+import { getAllSongsThunk, getASongByIdThunk } from '../../store/songReducer';
 const WallPaper = styled('div')({
     position: 'absolute',
     width: '100%',
@@ -79,68 +69,35 @@ const CoverImage = styled('div')({
     },
 });
 
-const TinyText = styled(Typography)({
-    fontSize: '0.75rem',
-    opacity: 0.38,
-    fontWeight: 500,
-    letterSpacing: 0.2,
-});
+
 
 
 const Player = ({ song }) => {
     console.log(song, "song selected")
     const dispatch = useDispatch();
-    const duration = 200; // seconds
-    // const [play, { pause, duration, sound }] = useSound(song?.file_path || '');
+ 
+    const [songUrl, setSongUrl] = useState(null);
 
-    const audioRef = useRef(null);
-    const [position, setPosition] = React.useState(32);
-    const [paused, setPaused] = React.useState(false);
-
-    const theme = useTheme();
-
-    const [volume, setVolume] = useState(1);
-    const mainIconColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
-    const lightIconColor = theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
-    const [songUrl,setSongUrl] = useState(null);
-  useEffect (()=>{
-    if(song && song.id){
-      
-        const loadSong = async()=>{
-            console.log(song.id,"ID")
-            const id = song.id
-            const url = await getASongByIdThunk(id)
-            console.log(url,"url",song.id,"id")
-            setSongUrl(url);
-            console.log(songUrl,"songUrl")
-        }
-        loadSong();
-
-    }
-  },[song])
     useEffect(() => {
-        if (audioRef.current) {
-            setVolume(audioRef.current.volume)
+        if (song && song.id) {
+
+            const loadSong = async () => {
+                console.log(song.id, "ID")
+                const id = song.id
+                const url = await dispatch(getASongByIdThunk(id))
+                console.log(url, "url", song.id, "id")
+                setSongUrl(url);
+                console.log(songUrl, "songUrl")
+            }
+            loadSong();
+
         }
-    }, [])
+    }, [song])
+ 
     if (!song || !song.file_path) {
         return <div>Loading...</div>; // or some other fallback UI
     }
-    function formatDuration(value) {
-        const minute = Math.floor(value / 60);
-        const secondLeft = value - minute * 60;
-        return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
-    }
-
-
-    console.log(volume);
-    const handleVolumeChange = (newValue) => {
-        setVolume(newValue);
-        if (audioRef.current) {
-            audioRef.current.volume = newValue;
-        }
-    };
-
+  
 
 
     return (
@@ -166,115 +123,14 @@ const Player = ({ song }) => {
                 </Box>
 
 
-                <Slider
-                    aria-label="time-indicator"
-                    size="small"
-                    value={position}
-                    min={0}
-                    step={1}
-                    max={duration}
-                    onChange={(_, value) => setPosition(value)}
-                    sx={{
-                        color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
-                        height: 4,
-                        '& .MuiSlider-thumb': {
-                            width: 8,
-                            height: 8,
-                            transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
-                            '&::before': {
-                                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
-                            },
-                            '&:hover, &.Mui-focusVisible': {
-                                boxShadow: `0px 0px 0px 8px ${theme.palette.mode === 'dark'
-                                        ? 'rgb(255 255 255 / 16%)'
-                                        : 'rgb(0 0 0 / 16%)'
-                                    }`,
-                            },
-                            '&.Mui-active': {
-                                width: 20,
-                                height: 20,
-                            },
-                        },
-                        '& .MuiSlider-rail': {
-                            opacity: 0.28,
-                        },
-                    }}
-                />
-                <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        mt: -2,
-                    }}
-                >
-                    <TinyText>{formatDuration(position)}</TinyText>
-                    <TinyText>-{formatDuration(duration - position)}</TinyText>
-                </Box>
+                    <audio controls>
+                        <source src={`http://localhost:5000/api/songs/${song.id}`} type="audio/mp3" />
+                        {/* <source src={songUrl} type="audio/mp3"/> */}
+                  Your browser does not support the audio element. 
+               </audio>
+              
 
-                <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mt: -1,
-                    }}
-                >
-                    <IconButton aria-label="previous song">
-                        <FastRewindRounded fontSize="large" htmlColor={mainIconColor} />
-                    </IconButton>
-                    <IconButton
-                        aria-label={paused ? 'play' : 'paused'}
-                        onClick={() => setPaused(!paused)}
-                    >
-                        {paused ? (
-                            <PlayArrowRounded
-                                sx={{ fontSize: '3rem' }}
-                                htmlColor={mainIconColor}
-                            />
-                        ) : (
-                            <PauseRounded sx={{ fontSize: '3rem' }} htmlColor={mainIconColor} />
-                        )}
-                    </IconButton>
-                    <IconButton aria-label="next song">
-                        <FastForwardRounded fontSize="large" htmlColor={mainIconColor} />
-                    </IconButton>
-                </Box>
-                <Stack spacing={2} direction="row" sx={{ mb: 1, px: 1 }} alignItems="center">
-                    <VolumeDownRounded htmlColor={lightIconColor} />
-                    <audio ref={audioRef} src={song && songUrl} />
-                    {/* <audio ref={audioRef} controls>
-                <source src={audioUrl} type="audio/mp3" />
-                Your browser does not support the audio element.
-            </audio> */}
-                    <Slider
-                        aria-label="Volume"
-                        defaultValue={30}
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={volume}
-                        onChange={(e) => handleVolumeChange(e.target.value)}
-                        sx={{
-                            color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
-                            '& .MuiSlider-track': {
-                                border: 'none',
-                            },
-                            '& .MuiSlider-thumb': {
-                                width: 24,
-                                height: 24,
-                                backgroundColor: '#fff',
-                                '&::before': {
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.4)',
-                                },
-                                '&:hover, &.Mui-focusVisible, &.Mui-active': {
-                                    boxShadow: 'none',
-                                },
-                            },
-                        }}
-                    />
-                    <VolumeUpRounded htmlColor={lightIconColor} />
-                </Stack>
+                   
 
             </Widget>
             <WallPaper />

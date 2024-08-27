@@ -30,15 +30,15 @@ export const getAllSongsThunk = () => async (dispatch) => {
 
 }
 export const getASongByIdThunk = (id) => async (dispatch) => {
-    console.log(id, "id")
-    const response = await fetch(`/api/songs/${id}`)
+    const response = await fetch(`http://localhost:5000/api/songs/${id}`);
+        
     if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        // dispatch(fetchASongById(url));
-        return url;
-
-    }
+        const url = response.url; // Use the response URL directly
+        
+        // Dispatch an action to store the song URL in the Redux store
+        dispatch(fetchASongById(url));
+        return url; // Optional: return the URL if needed
+        }
     else {
         console.error("Failed to fetch the song")
     }
@@ -50,6 +50,7 @@ const initialState = {
 const songReducer = (state = {}, action) => {
     console.log("inside reducer")
     let songs = {}
+    
     switch (action.type) {
         case FETCH_ALL_SONGS:
             console.log("inside reducer switch")
@@ -65,11 +66,13 @@ const songReducer = (state = {}, action) => {
 
                 ...songs
             }
-        // case FETCH_SONG_BY_ID:
-        //     return {
-        //         ...state,
-        //         songUrl: action.payload
-        //     }
+        case FETCH_SONG_BY_ID:
+            return {
+                ...state,
+
+                songUrl: action.payload
+             
+            }
 
 
 
