@@ -31,7 +31,7 @@ def seed_songs():
             'title': 'தங்கலான்',
             'artist': 'அனிருத்',
             'album': 'தங்கலான்',
-            'file_path': 'songsList/Thangalaan.mp3'
+            'file_path': 'songsList/MinikkiMinikki.mp3'
         }
     ]
 
