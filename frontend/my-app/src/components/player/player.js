@@ -1,10 +1,10 @@
 // our music player
-
+import { useDispatch, useSelector } from 'react-redux';
 import { useRef } from 'react';
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import useSound from "use-sound"; // for handling the sound
-import rain from '../assets/rain.mp3';
+// import rain from '../assets/rain.mp3';
 import './player.css';
 import axios from 'axios';
 
@@ -20,6 +20,7 @@ import FastForwardRounded from '@mui/icons-material/FastForwardRounded';
 import FastRewindRounded from '@mui/icons-material/FastRewindRounded';
 import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
 import VolumeDownRounded from '@mui/icons-material/VolumeDownRounded';
+import { getAllSongsThunk,getASongByIdThunk} from '../../store/songReducer';
 const WallPaper = styled('div')({
     position: 'absolute',
     width: '100%',
@@ -86,107 +87,84 @@ const TinyText = styled(Typography)({
 });
 
 
-const Player = ({ audioPlayer }) => {
+const Player = ({ song }) => {
+    console.log(song, "song selected")
+    const dispatch = useDispatch();
+    const duration = 200; // seconds
+    // const [play, { pause, duration, sound }] = useSound(song?.file_path || '');
 
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [play, { pause, duration, sound }] = useSound(rain);
-    const [currTime, setCurrTime] = useState({
-        min: "",
-        sec: "",
-    }); // current position of the audio in minutes and seconds
-    const [time, setTime] = useState({
-        min: "",
-        sec: ""
-    });
     const audioRef = useRef(null);
-
     const [position, setPosition] = React.useState(32);
+    const [paused, setPaused] = React.useState(false);
 
+    const theme = useTheme();
+
+    const [volume, setVolume] = useState(1);
+    const mainIconColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
+    const lightIconColor = theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+    const [songUrl,setSongUrl] = useState(null);
+  useEffect (()=>{
+    if(song && song.id){
+      
+        const loadSong = async()=>{
+            console.log(song.id,"ID")
+            const id = song.id
+            const url = await getASongByIdThunk(id)
+            console.log(url,"url",song.id,"id")
+            setSongUrl(url);
+            console.log(songUrl,"songUrl")
+        }
+        loadSong();
+
+    }
+  },[song])
+    useEffect(() => {
+        if (audioRef.current) {
+            setVolume(audioRef.current.volume)
+        }
+    }, [])
+    if (!song || !song.file_path) {
+        return <div>Loading...</div>; // or some other fallback UI
+    }
     function formatDuration(value) {
         const minute = Math.floor(value / 60);
         const secondLeft = value - minute * 60;
         return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
     }
 
-    const theme = useTheme();
 
-    const [seconds, setSeconds] = useState(); // current position of the audio in seconds
-    const mainIconColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
-    const lightIconColor = theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
-
-    const [volume, setVolume] = useState(audioPlayer ? audioPlayer.volume : 1);
     console.log(volume);
-    const handleVolumeChange = (event, newValue) => {
+    const handleVolumeChange = (newValue) => {
         setVolume(newValue);
-        if (audioPlayer) {
-            audioPlayer.volume = newValue; // Assuming audioPlayer.volume accepts values between 0 and 1
-        }
-    };
-    const playingButton = () => {
-        if (isPlaying) {
-            pause(); // this will pause the audio
-            setIsPlaying(false);
-        } else {
-            play(); // this will play the audio
-            setIsPlaying(true);
+        if (audioRef.current) {
+            audioRef.current.volume = newValue;
         }
     };
 
-    useEffect(() => {
-        if (duration) {
-            const sec = duration / 1000;
-            const min = Math.floor(sec / 60);
-            const secRemain = Math.floor(sec % 60);
-            setTime({
-                min: min,
-                sec: secRemain
-            });
-        }
-    }, [isPlaying]);
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (sound) {
-                setSeconds(sound.seek([])); // setting the seconds state with the current state
-                const min = Math.floor(sound.seek([]) / 60);
-                const sec = Math.floor(sound.seek([]) % 60);
-                setCurrTime({
-                    min,
-                    sec,
-                });
-            }
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [sound]);
+
+
     return (
         <Box sx={{ width: '100%', overflow: 'hidden' }}>
 
             <Widget>
 
-                <Box sx={{ width: '100%', overflow: 'hidden' }}>
 
+                <Box sx={{ width: '100%', overflow: 'hidden' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <CoverImage>
-                            <img
-                                alt="can't win - Chilling Sunday"
-                                src="/static/images/sliders/chilling-sunday.jpg"
-                            />
+                            <img alt={song && song.title} src="/static/images/sliders/chilling-sunday.jpg" /> Use song's cover image
                         </CoverImage>
                         <Box sx={{ ml: 1.5, minWidth: 0 }}>
                             <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                                Rain
+                                {song && song.artist} Use song's artist
                             </Typography>
                             <Typography noWrap>
-                                <b>Can't win</b>
-                            </Typography>
-                            <Typography noWrap letterSpacing={-0.25}>
-                                Chilling Sunday
+                                <b>{song && song.title}</b> Use song's title
                             </Typography>
                         </Box>
-
                     </Box>
-
-
                 </Box>
+
 
                 <Slider
                     aria-label="time-indicator"
@@ -208,8 +186,8 @@ const Player = ({ audioPlayer }) => {
                             },
                             '&:hover, &.Mui-focusVisible': {
                                 boxShadow: `0px 0px 0px 8px ${theme.palette.mode === 'dark'
-                                    ? 'rgb(255 255 255 / 16%)'
-                                    : 'rgb(0 0 0 / 16%)'
+                                        ? 'rgb(255 255 255 / 16%)'
+                                        : 'rgb(0 0 0 / 16%)'
                                     }`,
                             },
                             '&.Mui-active': {
@@ -233,16 +211,7 @@ const Player = ({ audioPlayer }) => {
                     <TinyText>{formatDuration(position)}</TinyText>
                     <TinyText>-{formatDuration(duration - position)}</TinyText>
                 </Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        mt: -2,
-                    }}
-                >
 
-                </Box>
                 <Box
                     sx={{
                         display: 'flex',
@@ -255,37 +224,37 @@ const Player = ({ audioPlayer }) => {
                         <FastRewindRounded fontSize="large" htmlColor={mainIconColor} />
                     </IconButton>
                     <IconButton
+                        aria-label={paused ? 'play' : 'paused'}
+                        onClick={() => setPaused(!paused)}
                     >
-
-                        {!isPlaying ? (
+                        {paused ? (
                             <PlayArrowRounded
                                 sx={{ fontSize: '3rem' }}
                                 htmlColor={mainIconColor}
-                                onClick={playingButton}
                             />
                         ) : (
-                            <PauseRounded sx={{ fontSize: '3rem' }} htmlColor={mainIconColor} onClick={playingButton} />
+                            <PauseRounded sx={{ fontSize: '3rem' }} htmlColor={mainIconColor} />
                         )}
                     </IconButton>
                     <IconButton aria-label="next song">
                         <FastForwardRounded fontSize="large" htmlColor={mainIconColor} />
                     </IconButton>
-
                 </Box>
                 <Stack spacing={2} direction="row" sx={{ mb: 1, px: 1 }} alignItems="center">
                     <VolumeDownRounded htmlColor={lightIconColor} />
+                    <audio ref={audioRef} src={song && songUrl} />
                     {/* <audio ref={audioRef} controls>
-                        <source src="/static/images/sliders/chilling-sunday.jpg" type="audio/mpeg" />
-
-                    </audio> */}
+                <source src={audioUrl} type="audio/mp3" />
+                Your browser does not support the audio element.
+            </audio> */}
                     <Slider
                         aria-label="Volume"
                         defaultValue={30}
                         min={0}
                         max={1}
                         step={0.01}
-                        // value={volume}
-                        // onChange={handleVolumeChange}
+                        value={volume}
+                        onChange={(e) => handleVolumeChange(e.target.value)}
                         sx={{
                             color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
                             '& .MuiSlider-track': {
@@ -311,5 +280,6 @@ const Player = ({ audioPlayer }) => {
             <WallPaper />
         </Box>
     );
+
 }
 export default Player;

@@ -1,32 +1,51 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllSongsThunk} from '../../store/songReducer';
+import { getAllSongsThunk, getAllSongsFromDirectoryThunk } from '../../store/songReducer';
 import './songs.css';
+import Player from '../player/player';
 const SongList = () => {
-    const dispatch = useDispatch();
-    const songs = useSelector(state =>Object.values(state.songReducer) || []);    
-    console.log(songs,"songs")
-    // const error = useSelector((state) => console.log(state.songReducer,"state what value"));
-    const error = useSelector((state) => state.songReducer.error);
+  const dispatch = useDispatch();
+  const songs = useSelector(state => Object.values(state.songReducer) || []);
+  console.log(songs, "songs")
 
-    useEffect(() => {
-        dispatch(getAllSongsThunk());
-    }, [dispatch]);
+  const error = useSelector((state) => state.songReducer.error);
+  const [selectedSong, setSelectedSong] = useState(null);
 
-    if (error) {
-        return <p>Error: {error}</p>;
-    }
+  useEffect(() => {
+    dispatch(getAllSongsThunk());
+  }, [dispatch]);
 
-    return (
-        <div className='song-list'>
-            <h1>Song List</h1>
-            <ul>
-                {songs && songs.map(song => (
-                    <li key={song.id}>{song.title}</li>
-                ))}
-            </ul>
-        </div>
-    );
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
+
+
+  const handleSongClick = (song) => {
+    setSelectedSong(song); // Update the selected song state (optional)
+    console.log(selectedSong, "selected song")
+
+
+  };
+
+  return (
+    <div className='song-list'>
+      <h1>Song List</h1>
+      {
+  songs && songs.map((song) => (
+    <button
+      key={song.id}
+      className={`song-button ${selectedSong && selectedSong.id === song.id ? 'selected' : ''}`}
+      onClick={() => handleSongClick(song)}
+    >
+      {song.title}
+    </button>
+  ))
+}
+
+      {/* Conditionally render the Player component if a song is selected */}
+      {selectedSong && <Player song={selectedSong} />}
+    </div>
+  );
 };
 
 export default SongList;

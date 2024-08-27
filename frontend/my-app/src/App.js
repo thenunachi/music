@@ -13,10 +13,10 @@ function App() {
   root.render(
     <Provider store={store}>
       {/* <ArtistList /> */}
-      <Player />
+      {/* <Player /> */}
       {/* <ExampleComponent /> */}
       {/* <ResponsiveDrawer /> */}
-      <SongList />
+      <SongList/>
     </Provider>
   );
 }
