@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, abort,send_from_directory,send_file
+from flask import Blueprint, request, jsonify, abort,send_from_directory,send_file,abort
 from app import db
 from app.models import Song
 import os
@@ -31,13 +31,6 @@ def get_song_file(song_id):
     print(song.file_path,"song.file_path from routes")
     return send_file(song.file_path, mimetype='audio/mp3')
 
-
-# songs_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../seed/songs')
-
-# @song_bp.route('/<path:filename>')
-# def serve_song(filename):
-#     print(filename,"filename from routes")
-#     return send_from_directory(songs_directory, filename)
 
 
 
