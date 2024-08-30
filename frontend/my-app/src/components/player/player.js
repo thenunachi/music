@@ -161,19 +161,7 @@ console.log(lyrics,"lyrics")
 }
 export default Player;
 
-// curl "https://api.spotify.com/v1/artist/4zCH9qm4R2DADamUHMCa6O" \
-//      -H "Authorization: Bearer  BQCAJL7QAU_YgMZdvKR1L7gPUh7KWIX4XUMYjVhWDlAJL_dk4AjRem1Y8ae-UUTDTxYfcb9a1TveELuIXRIg7Gli05n0kG-hU5M6LQEXlqwvy8v-8ZA"
-// curl -X POST "https://accounts.spotify.com/api/token" \
-//      -H "Content-Type: application/x-www-form-urlencoded" \
-//      -d "grant_type=client_credentials&client_id=330af6ef142c4b559ef52ecf2a2b90f8&client_secret=de844f8ac31143e0908929e00cd32f3b"
-//      {"access_token":"BQBgbd5pbfts5S-CDob2hvh-tOHi6IT6yUIy1yR1DCpAm11ViWOp8ClXgGGB83ko9QXk5pnkY8teBfbjfo2C_eJVQCQ-liRI1q2nRPiQ8wewtpxN2VQ",
-//         "token_type":"Bearer",
-//         "expires_in":3600}% 
 
-//         https://open.spotify.com/artist/4zCH9qm4R2DADamUHMCa6O?si=dVEH3YQSS_2DSCu860f6QQ
-
-//         curl "https://api.spotify.com/v1/artists/4zCH9qm4R2DADamUHMCa6O" \
-//      -H "Authorization: Bearer  BQBgbd5pbfts5S-CDob2hvh-tOHi6IT6yUIy1yR1DCpAm11ViWOp8ClXgGGB83ko9QXk5pnkY8teBfbjfo2C_eJVQCQ-liRI1q2nRPiQ8wewtpxN2VQ"
 // {"external_urls":{"spotify":"https://open.spotify.com/artist/4zCH9qm4R2DADamUHMCa6O"},
 // "followers":{"href":null,"total":31546984},
 // "genres":["desi hip hop","filmi","tamil hip hop"],
