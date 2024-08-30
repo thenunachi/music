@@ -2,7 +2,7 @@
 
 const FETCH_ALL_SONGS = 'songs/fetchAllSongs';
 const FETCH_SONG_BY_ID = 'songs/fetchSongById';
-
+const FETCH_SONG_LYRICS = 'songs/fetchSongLyrics';
 
 const fetchAllSongs = payload => {
     console.log(payload, "payload")
@@ -15,6 +15,12 @@ const fetchASongById = (url) => {
     return {
         type: FETCH_SONG_BY_ID,
         payload: url
+    }
+}
+const fetchSongLyrics = (lyrics) => {
+    return {
+        type: FETCH_SONG_LYRICS,
+        payload: lyrics
     }
 }
 export const getAllSongsThunk = () => async (dispatch) => {
@@ -43,6 +49,18 @@ export const getASongByIdThunk = (id) => async (dispatch) => {
         console.error("Failed to fetch the song")
     }
 }
+export const getSongLyrics = (id)=>async (dispatch)=>{
+    const response = await fetch(`http://localhost:5000/api/songs/${id}/lyrics`);
+    if(response.ok){
+        const data = await response.json()
+        console.log(data, "data")
+        dispatch(fetchSongLyrics(data.song))
+        return data
+    }
+    else{
+        console.error("Failed to fetch lyrics")
+    }
+}
 
 const initialState = {
     songUrl: null
@@ -67,6 +85,8 @@ const songReducer = (state = {}, action) => {
                 ...songs
             }
         case FETCH_SONG_BY_ID:
+
+
             return {
                 ...state,
 
@@ -74,6 +94,11 @@ const songReducer = (state = {}, action) => {
              
             }
 
+        case FETCH_SONG_LYRICS:
+            return {
+                ...state,
+                lyrics: action.payload
+            }
 
 
         default:

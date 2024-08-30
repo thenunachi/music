@@ -30,8 +30,10 @@ const SongList = () => {
   return (
     <div className='song-list'>
       <h1>Song List</h1>
+      <div className='vertical-menu'>
       {
   songs && songs.map((song) => (
+   <a>
     <button
       key={song.id}
       className={`song-button ${selectedSong && selectedSong.id === song.id ? 'selected' : ''}`}
@@ -39,8 +41,10 @@ const SongList = () => {
     >
       {song.title}
     </button>
+    </a>
   ))
 }
+</div>
 
       {/* Conditionally render the Player component if a song is selected */}
       {selectedSong && <Player song={selectedSong} />}

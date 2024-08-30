@@ -10,7 +10,7 @@ import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import { getAllSongsThunk, getASongByIdThunk } from '../../store/songReducer';
+import {  getASongByIdThunk,getSongLyrics } from '../../store/songReducer';
 const WallPaper = styled('div')({
     position: 'absolute',
     width: '100%',
@@ -77,7 +77,7 @@ const Player = ({ song }) => {
     const dispatch = useDispatch();
  
     const [songUrl, setSongUrl] = useState(null);
-
+const [lyrics, setLyrics] = useState(null);
     useEffect(() => {
         if (song && song.id) {
 
@@ -93,14 +93,34 @@ const Player = ({ song }) => {
 
         }
     }, [song])
- 
+    useEffect(() => {
+        console.log(songUrl, "songUrl");
+        if (song && song.id) {
+            const fetchLyrics = async () => {
+                try {
+                    const response = await dispatch(getSongLyrics(song.id)); // Wait for the promise to resolve
+                    setLyrics(response.song.lyrics); // Set the lyrics in the state
+                } catch (error) {
+                    console.error("Failed to fetch lyrics:", error);
+                }
+            };
+    
+            fetchLyrics(); // Call the async function
+        }
+    }, [song, songUrl]); // Dependencies: song and songUrl
+    
     if (!song || !song.file_path) {
         return <div>Loading...</div>; // or some other fallback UI
     }
   
 
-
+console.log(lyrics,"lyrics")
     return (
+        <div>
+            <div>
+    {lyrics}
+</div>
+   
         <Box sx={{ width: '100%', overflow: 'hidden' }}>
 
             <Widget>
@@ -135,7 +155,35 @@ const Player = ({ song }) => {
             </Widget>
             <WallPaper />
         </Box>
+        </div>
     );
 
 }
 export default Player;
+
+// curl "https://api.spotify.com/v1/artist/4zCH9qm4R2DADamUHMCa6O" \
+//      -H "Authorization: Bearer  BQCAJL7QAU_YgMZdvKR1L7gPUh7KWIX4XUMYjVhWDlAJL_dk4AjRem1Y8ae-UUTDTxYfcb9a1TveELuIXRIg7Gli05n0kG-hU5M6LQEXlqwvy8v-8ZA"
+// curl -X POST "https://accounts.spotify.com/api/token" \
+//      -H "Content-Type: application/x-www-form-urlencoded" \
+//      -d "grant_type=client_credentials&client_id=330af6ef142c4b559ef52ecf2a2b90f8&client_secret=de844f8ac31143e0908929e00cd32f3b"
+//      {"access_token":"BQBgbd5pbfts5S-CDob2hvh-tOHi6IT6yUIy1yR1DCpAm11ViWOp8ClXgGGB83ko9QXk5pnkY8teBfbjfo2C_eJVQCQ-liRI1q2nRPiQ8wewtpxN2VQ",
+//         "token_type":"Bearer",
+//         "expires_in":3600}% 
+
+//         https://open.spotify.com/artist/4zCH9qm4R2DADamUHMCa6O?si=dVEH3YQSS_2DSCu860f6QQ
+
+//         curl "https://api.spotify.com/v1/artists/4zCH9qm4R2DADamUHMCa6O" \
+//      -H "Authorization: Bearer  BQBgbd5pbfts5S-CDob2hvh-tOHi6IT6yUIy1yR1DCpAm11ViWOp8ClXgGGB83ko9QXk5pnkY8teBfbjfo2C_eJVQCQ-liRI1q2nRPiQ8wewtpxN2VQ"
+// {"external_urls":{"spotify":"https://open.spotify.com/artist/4zCH9qm4R2DADamUHMCa6O"},
+// "followers":{"href":null,"total":31546984},
+// "genres":["desi hip hop","filmi","tamil hip hop"],
+// "href":"https://api.spotify.com/v1/artists/4zCH9qm4R2DADamUHMCa6O",
+// "id":"4zCH9qm4R2DADamUHMCa6O",
+// "images":[{"url":"https://i.scdn.co/image/ab6761610000e5eb0f0be2054fe9594026a6b843",
+//     "height":640,"width":640},{"url":"https://i.scdn.co/image/ab676161000051740f0be2054fe9594026a6b843",
+//         "height":320,"width":320},{"url":"https://i.scdn.co/image/ab6761610000f1780f0be2054fe9594026a6b843",
+//             "height":160,"width":160}],
+//             "name":"Anirudh Ravichander",
+//             "popularity":83,
+//             "type":"artist",
+//             "uri":"spotify:artist:4zCH9qm4R2DADamUHMCa6O"}
