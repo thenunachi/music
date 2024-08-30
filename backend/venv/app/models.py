@@ -13,6 +13,7 @@ class Song(db.Model):
     artist = db.Column(db.String(100))
     album = db.Column(db.String(100))
     file_path = db.Column(db.String(200))
+    lyrics = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
         return f'<Song {self.title}>'

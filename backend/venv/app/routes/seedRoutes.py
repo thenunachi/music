@@ -32,7 +32,20 @@ def get_song_file(song_id):
     return send_file(song.file_path, mimetype='audio/mp3')
 
 
-
+@song_bp.route('/<int:song_id>/lyrics',methods=['GET'])
+def get_song(song_id):
+    song = Song.query.get(song_id)
+    if not song:
+        abort(404, description="Song not found")
+    print(song.lyrics,"lyrics from routes")
+    return jsonify({'song': {
+        'id': song.id,
+        'title': song.title,
+        'artist': song.artist,
+        'album': song.album,
+        'file_path': song.file_path,
+        'lyrics': song.lyrics
+    }})
 
 
 # @song_bp.route('/', methods=['POST'])
